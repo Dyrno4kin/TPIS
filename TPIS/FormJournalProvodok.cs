@@ -18,7 +18,7 @@ namespace TPIS
         private SQLiteCommand sql_cmd;
         private DataSet DS = new DataSet();
         private DataTable DT = new DataTable();
-        private static string sPath = Path.Combine(Application.StartupPath, "mydatabase.db");
+        private static string sPath = Path.Combine(Application.StartupPath, "mydatabaselab5.db");
         string ConnectionString = @"Data Source=" + sPath + ";New=False;Version=3";
         public int Id { set { id = value; } }
         private int? id;

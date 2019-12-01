@@ -18,7 +18,7 @@ namespace TPIS
         private SQLiteConnection sql_con;
         private DataSet DS = new DataSet();
         private DataTable DT = new DataTable();
-        private string sPath = Path.Combine(Application.StartupPath, "mydatabase.db");
+        private string sPath = Path.Combine(Application.StartupPath, "mydatabaselab5.db");
 
 
         public FormAddMaterials()

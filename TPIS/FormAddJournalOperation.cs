@@ -12,7 +12,7 @@ namespace TPIS
         private SQLiteConnection sql_con;
         private DataSet DS = new DataSet();
         private DataTable DT = new DataTable();
-        private string sPath = Path.Combine(Application.StartupPath, "mydatabase.db");
+        private string sPath = Path.Combine(Application.StartupPath, "mydatabaselab5.db");
         public int Id { set { id = value; } }
         private int? id;
         private bool upd = true;
@@ -52,16 +52,16 @@ namespace TPIS
             selectCombo(ConnectionString, selectMaterials, comboBoxMaterial, "Name", "idMaterials");
             if (upd)
             {
-                String selectCommand = "Select ID, MaterialId, JournalOperationId, Count, Sum from Materials_JournalOperation where JournalOperationId =" + id;
-                refreshForm(ConnectionString, selectCommand);
 
                 String selectDate = "Select Date_operation from Journal_Operation where idOperation=" + id;
                 object date_operation = selectValue(ConnectionString, selectDate);
                 dateTimePicker1.Text = Convert.ToString(date_operation);
-                comboBoxMaterial.SelectedIndex = -1;
                 String selectComment = "Select Comment from Journal_Operation where idOperation=" + id;
                 object comment = selectValue(ConnectionString, selectComment);
                 textBoxComment.Text = Convert.ToString(comment);
+                String selectCount = "Select Count from Journal_Operation where idOperation=" + id;
+                object count = selectValue(ConnectionString, selectCount);
+                textBoxCount.Text = Convert.ToString(count);
                 textBoxNumberOperation.Text = Convert.ToString(id);
 
 
@@ -142,11 +142,20 @@ namespace TPIS
                 {
                     comboBoxStock2.SelectedValue = Convert.ToInt32(storeId2);
                 }
+
+                String selectMaterialsId = "SELECT MaterialsId FROM Journal_Operation where idOperation=" + id;
+                object MaterialsId = selectValue(ConnectionString, selectMaterialsId);
+                if (Convert.ToString(MOLId1) == "")
+                {
+                    comboBoxMaterial.SelectedIndex = -1;
+                }
+                else
+                {
+                    comboBoxMaterial.SelectedValue = Convert.ToInt32(MaterialsId);
+                }
             }
             else
             {
-                String selectCommand = "Select ID, MaterialId, JournalOperationId, Count, Sum from Materials_JournalOperation where JournalOperationId =" + id;
-                refreshForm(ConnectionString, selectCommand);
                 textBoxNumberOperation.Text = Convert.ToString(id);
                 comboBoxMaterial.SelectedIndex = -1;
                 comboBoxPodrazdel.SelectedIndex = -1;
@@ -185,18 +194,6 @@ namespace TPIS
             connect.Close(); return value;
         }
 
-        public void selectTable(string ConnectionString, String selectCommand)
-        {
-            SQLiteConnection connect = new SQLiteConnection(ConnectionString);
-            connect.Open();
-            SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(selectCommand, connect);
-            DataSet ds = new DataSet();
-            dataAdapter.Fill(ds);
-            dataGridView1.DataSource = ds;
-            dataGridView1.DataMember = ds.Tables[0].ToString();
-            connect.Close();
-        }
-
         private void ExecuteQuery(string txtQuery)
         {
             sql_con = new SQLiteConnection("Data Source=" + sPath + ";Version=3;New=False;Compress=True;");
@@ -205,21 +202,6 @@ namespace TPIS
             sql_cmd.CommandText = txtQuery;
             sql_cmd.ExecuteNonQuery();
             sql_con.Close();
-        }
-
-        public void refreshForm(string ConnectionString, String selectCommand)
-        {
-            selectTable(ConnectionString, selectCommand);
-            int count = 0;
-            double sum = 0;
-            while (count <= (Convert.ToInt32(dataGridView1.RowCount.ToString()) - 1))
-            {
-                sum += Convert.ToDouble(dataGridView1[4, count].Value);
-                count++;
-            }
-            textBoxSumOperation.Text = Convert.ToString(sum);
-            dataGridView1.Update();
-            dataGridView1.Refresh();
         }
 
         private void comboBoxTypeOperation_SelectedIndexChanged(object sender, EventArgs e)
@@ -291,120 +273,6 @@ namespace TPIS
             connect.Close();
         }
 
-        public void delMaterials()
-        {
-            string ConnectionString = @"Data Source=" + sPath + ";New=False;Version=3";
-            String selectCommand = "delete from Materials_JournalOperation where JournalOperationId=" + id;
-            changeValue(ConnectionString, selectCommand);
-            String selectCommand1 = "Select ID, MaterialId, JournalOperationId, Count, Sum from Materials_JournalOperation where JournalOperationId =" + id;
-            selectTable(ConnectionString, selectCommand1);
-        }
-
-        private void dataGridView1_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
-        {
-            //выбрана строка CurrentRow
-            int CurrentRow = dataGridView1.SelectedCells[0].RowIndex;
-            //получить значение выбранной строки 
-            string valueId = dataGridView1[0, CurrentRow].Value.ToString();
-            string changeMaterial = dataGridView1[1, CurrentRow].Value.ToString();
-            string changeCount = dataGridView1[3, CurrentRow].Value.ToString();
-            string changePrice = dataGridView1[4, CurrentRow].Value.ToString();
-
-            comboBoxMaterial.SelectedValue = Convert.ToInt32(changeMaterial);
-            textBoxCount.Text = changeCount;
-            textBoxSum.Text = changePrice;
-        }
-
-        private void buttonAddMaterial_Click(object sender, EventArgs e)
-        {
-            string ConnectionString = @"Data Source=" + sPath + ";New=False;Version=3";
-            if (comboBoxMaterial.SelectedValue != null && textBoxCount.Text != "")
-            {
-                if (Convert.ToInt32(textBoxCount.Text) < 101)
-                { 
-                    String selectMaterialPrice = "Select Price from Materials where idMaterials=" + comboBoxMaterial.SelectedValue.ToString();
-                    object materialPrice = selectValue(ConnectionString, selectMaterialPrice);
-                    textBoxSum.Text = Convert.ToString(Convert.ToDouble(materialPrice) * Convert.ToInt32(textBoxCount.Text));
-
-                    String mValue = "select MAX(id) from Materials_JournalOperation";
-                    object maxValue = selectValue(ConnectionString, mValue);
-                    if (Convert.ToString(maxValue) == "") maxValue = 0;
-                    string add = "INSERT INTO Materials_JournalOperation (ID, MaterialId, JournalOperationId, Count, Sum) VALUES (" + (Convert.ToInt32(maxValue) + 1) + "," + Convert.ToInt32(comboBoxMaterial.SelectedValue) + "," + id + "," + Convert.ToInt32(textBoxCount.Text) + ",'" + textBoxSum.Text.ToString() + "')";
-                    ExecuteQuery(add);
-                }
-                else MessageBox.Show("Количество не может быть больше 100");
-            }
-            else MessageBox.Show("Выберите материал или введите количество");
-  
-            String selectCommand = "Select ID, MaterialId, JournalOperationId, Count, Sum from Materials_JournalOperation where JournalOperationId =" + id;
-            refreshForm(ConnectionString,selectCommand);
-        }
-
-        private void buttonUpdate_Click(object sender, EventArgs e)
-        {
-            int CurrentRow = dataGridView1.SelectedCells[0].RowIndex;
-            //получить значение Name выбранной строки
-            string valueId = dataGridView1[0, CurrentRow].Value.ToString();
-            string changeMaterial = Convert.ToString(comboBoxMaterial.SelectedValue);
-            string changeCount = textBoxCount.Text;
-            string changePrice = textBoxSum.Text;
-            string ConnectionString = @"Data Source=" + sPath + ";New=False;Version=3";
-            if (comboBoxMaterial.SelectedValue != null && textBoxCount.Text != "")
-            {
-                if (Convert.ToInt32(textBoxCount.Text) < 101)
-                {
-                    String selectMaterialPrice = "Select Price from Materials where idMaterials=" + comboBoxMaterial.SelectedValue.ToString();
-                    object materialPrice = selectValue(ConnectionString, selectMaterialPrice);
-                    textBoxSum.Text = Convert.ToString(Convert.ToDouble(materialPrice) * Convert.ToInt32(textBoxCount.Text));
-
-                    String mValue = "select MAX(id) from Materials_JournalOperation";
-                    object maxValue = selectValue(ConnectionString, mValue);
-                    if (Convert.ToString(maxValue) == "") maxValue = 0;
-                    //обновление
-                    String selectCommand = "update Materials_JournalOperation set MaterialId=" + Convert.ToInt32(comboBoxMaterial.SelectedValue) + ", Count=" + Convert.ToInt32(textBoxCount.Text) + ",Sum='" + textBoxSum.Text + "' where ID=" + valueId;
-                    changeValue(ConnectionString, selectCommand);
-                }
-                else MessageBox.Show("Количество не может быть больше 100");
-            }
-            else MessageBox.Show("Выберите материал или введите количество");
-            
-            //обновление dataGridView1 
-            String selectCommand1 = "Select ID, MaterialId, JournalOperationId, Count, Sum from Materials_JournalOperation where JournalOperationId =" + id;
-            refreshForm(ConnectionString, selectCommand1);
-            comboBoxMaterial.SelectedIndex = -1;
-            textBoxCount.Text = "";
-            textBoxSum.Text = "";
-        }
-
-        private void buttonDel_Click(object sender, EventArgs e)
-        {
-            string ConnectionString = @"Data Source=" + sPath + ";New=False;Version=3";
-            int CurrentRow = dataGridView1.SelectedCells[0].RowIndex;
-            string valueId = dataGridView1[0, CurrentRow].Value.ToString();
-            String selectCommand = "delete from Materials_JournalOperation where ID=" + valueId;
-            changeValue(ConnectionString, selectCommand);
-
-            String selectCommand1 = "Select ID, MaterialId, JournalOperationId, Count, Sum from Materials_JournalOperation where JournalOperationId =" + id;
-            selectTable(ConnectionString, selectCommand1);
-        }
-
-        private void buttonRef_Click(object sender, EventArgs e)
-        {
-            if (comboBoxMaterial.SelectedValue != null && textBoxCount.Text != "")
-            {
-                if (Convert.ToInt32(textBoxCount.Text) < 101)
-                {
-                    string ConnectionString = @"Data Source=" + sPath + ";New=False;Version=3";
-                    String idMaterial = comboBoxMaterial.SelectedValue.ToString();
-                    String selectMaterialPrice = "Select Price from Materials where idMaterials=" + idMaterial;
-                    object materialPrice = selectValue(ConnectionString, selectMaterialPrice);
-                    textBoxSum.Text = Convert.ToString(Convert.ToDouble(materialPrice) * Convert.ToInt32(textBoxCount.Text));
-                }
-                else MessageBox.Show("Количество не может быть больше 100");
-            }
-            else MessageBox.Show("Выберите материал или введите количество");
-        }
-
         private void buttonSave_Click(object sender, EventArgs e)
         {
             int idProvodki = 0;
@@ -416,35 +284,41 @@ namespace TPIS
             object journalProvodokIdmaxValue = selectValue(ConnectionString, journalProvodokId);
             if (Convert.ToString(journalProvodokIdmaxValue) == "") journalProvodokIdmaxValue = 0;
             idProvodki = Convert.ToInt32(journalProvodokIdmaxValue) + 1;
+
+            String selectpriceMaterial = "select Price from Materials where idMaterials =" + (Convert.ToInt32(comboBoxMaterial.SelectedValue.ToString()));
+            object priceMaterial = selectValue(ConnectionString, selectpriceMaterial);
+            double sum = Convert.ToDouble(priceMaterial) * Convert.ToInt32(textBoxCount.Text);
+            textBoxSumOperation.Text = sum.ToString();
+
             if (upd)
             {
                 if (comboBoxTypeOperation.Text == "Поступление материалов")
                 {
-                    add = "update Journal_Operation set Type_operation='" + comboBoxTypeOperation.Text.ToString() + "', Date_operation='" + dateOperation + "',StoreId1=" + (Convert.ToInt32(comboBoxStock1.SelectedValue.ToString())) + ", MOLId1=" + (Convert.ToInt32(comboBoxMOL.SelectedValue.ToString())) + ", ProviderId=" + (Convert.ToInt32(comboBoxProvider.SelectedValue.ToString())) + ", Sum_operation ='" + textBoxSumOperation.Text.ToString() + "', Comment='" + textBoxComment.Text.ToString() + "' where idOperation=" + id;
+                    add = "update Journal_Operation set Type_operation='" + comboBoxTypeOperation.Text.ToString() + "', Date_operation='" + dateOperation + "',StoreId1=" + (Convert.ToInt32(comboBoxStock1.SelectedValue.ToString())) + ", MOLId1=" + (Convert.ToInt32(comboBoxMOL.SelectedValue.ToString())) + ", ProviderId=" + (Convert.ToInt32(comboBoxProvider.SelectedValue.ToString())) + ", Sum_operation ='" + textBoxSumOperation.Text.ToString() + "', Comment='" + textBoxComment.Text.ToString() + "', MaterialsId=" + (Convert.ToInt32(comboBoxMaterial.SelectedValue.ToString())) + ", Count='" + textBoxCount.Text.ToString() + "' where idOperation=" + id;
                 }
                 if (comboBoxTypeOperation.Text == "Перемещение материалов")
                 {
-                    add = "update Journal_Operation set Type_operation='" + comboBoxTypeOperation.Text.ToString() + "', Date_operation='" + dateOperation + "',StoreId1=" + (Convert.ToInt32(comboBoxStock1.SelectedValue.ToString())) + ", StoreId2=" + (Convert.ToInt32(comboBoxStock2.SelectedValue.ToString())) + ", MOLId1=" + (Convert.ToInt32(comboBoxMOL.SelectedValue.ToString())) + ", MOLId2=" + (Convert.ToInt32(comboBoxMOL2.SelectedValue.ToString())) + ", Sum_operation ='" + textBoxSumOperation.Text.ToString() + "', Comment='" + textBoxComment.Text.ToString() + "' where idOperation=" + id;
+                    add = "update Journal_Operation set Type_operation='" + comboBoxTypeOperation.Text.ToString() + "', Date_operation='" + dateOperation + "',StoreId1=" + (Convert.ToInt32(comboBoxStock1.SelectedValue.ToString())) + ", StoreId2=" + (Convert.ToInt32(comboBoxStock2.SelectedValue.ToString())) + ", MOLId1=" + (Convert.ToInt32(comboBoxMOL.SelectedValue.ToString())) + ", MOLId2=" + (Convert.ToInt32(comboBoxMOL2.SelectedValue.ToString())) + ", Sum_operation ='" + textBoxSumOperation.Text.ToString() + "', Comment='" + textBoxComment.Text.ToString() + "', MaterialsId=" + (Convert.ToInt32(comboBoxMaterial.SelectedValue.ToString())) + ", Count='" + textBoxCount.Text.ToString() + "' where idOperation=" + id;
                 }
                 if (comboBoxTypeOperation.Text == "Отпуск материалов")
                 {
-                    add = "update Journal_Operation set Type_operation='" + comboBoxTypeOperation.Text.ToString() + "', Date_operation='" + dateOperation + "',StoreId1=" + (Convert.ToInt32(comboBoxStock1.SelectedValue.ToString())) + ", MOLId1=" + (Convert.ToInt32(comboBoxMOL.SelectedValue.ToString())) + ", Podrazdel=" + (Convert.ToInt32(comboBoxPodrazdel.SelectedValue.ToString())) + ", Sum_operation ='" + textBoxSumOperation.Text.ToString() + "', Comment='" + textBoxComment.Text.ToString() + "' where idOperation=" + id;
+                    add = "update Journal_Operation set Type_operation='" + comboBoxTypeOperation.Text.ToString() + "', Date_operation='" + dateOperation + "',StoreId1=" + (Convert.ToInt32(comboBoxStock1.SelectedValue.ToString())) + ", MOLId1=" + (Convert.ToInt32(comboBoxMOL.SelectedValue.ToString())) + ", Podrazdel=" + (Convert.ToInt32(comboBoxPodrazdel.SelectedValue.ToString())) + ", Sum_operation ='" + textBoxSumOperation.Text.ToString() + "', Comment='" + textBoxComment.Text.ToString() + "', MaterialsId=" + (Convert.ToInt32(comboBoxMaterial.SelectedValue.ToString())) + ", Count='" + textBoxCount.Text.ToString() + "' where idOperation=" + id;
                 }
                 changeValue(ConnectionString, add);
             }
             else
             {
                 if (comboBoxTypeOperation.Text == "Поступление материалов") {
-                    add = "INSERT INTO Journal_Operation (idOperation, Type_operation, Date_operation, StoreId1, MOLId1, ProviderId, Sum_operation, Comment) VALUES (" + id + ",'" + comboBoxTypeOperation.Text.ToString() + "','" + dateOperation + "'," + (Convert.ToInt32(comboBoxStock1.SelectedValue.ToString()) + "," + Convert.ToInt32(comboBoxMOL.SelectedValue.ToString()) + "," + Convert.ToInt32(comboBoxProvider.SelectedValue.ToString()) + ",'" + textBoxSumOperation.Text.ToString() + "', '" + textBoxComment.Text.ToString() + "')");
-                    addProvodki = "INSERT INTO Journal_Provodok (idProvodki, DateOperation, ShetDT, Subkonto1Dt, Subkonto2Dt,Subkonto3Dt, ShetKT, Subkonto1Kt, Count, Sum, JournalOperationKod) VALUES (" + idProvodki + ",'" + dateOperation + "'," + 1 + ",'" + comboBoxStock1.Text.ToString() + "','" + comboBoxStock1.Text.ToString() + "','" + comboBoxMOL.Text.ToString() + "'," + 5 + ",'" + comboBoxProvider.Text.ToString() + "','" + textBoxSumOperation.Text.ToString() + "','" + textBoxSumOperation.Text.ToString() + "'," + id + ")";
+                    add = "INSERT INTO Journal_Operation (idOperation, Type_operation, Date_operation, StoreId1, MOLId1, ProviderId, Sum_operation, Comment, MaterialsId, Count) VALUES (" + id + ",'" + comboBoxTypeOperation.Text.ToString() + "','" + dateOperation + "'," + (Convert.ToInt32(comboBoxStock1.SelectedValue.ToString()) + "," + Convert.ToInt32(comboBoxMOL.SelectedValue.ToString()) + "," + Convert.ToInt32(comboBoxProvider.SelectedValue.ToString()) + ",'" + textBoxSumOperation.Text.ToString() + "', '" + textBoxComment.Text.ToString() + "'," + Convert.ToInt32(comboBoxMaterial.SelectedValue.ToString()) + ", '" + textBoxCount.Text.ToString() + "')");
+                    addProvodki = "INSERT INTO Journal_Provodok (idProvodki, DateOperation, ShetDT, Subkonto1Dt, Subkonto2Dt,Subkonto3Dt, ShetKT, Subkonto1Kt, Count, Sum, JournalOperationKod) VALUES (" + idProvodki + ",'" + dateOperation + "'," + 1 + ",'" + comboBoxMaterial.Text.ToString() + "','" + comboBoxStock1.Text.ToString() + "','" + comboBoxMOL.Text.ToString() + "'," + 5 + ",'" + comboBoxProvider.Text.ToString() + "','" + textBoxSumOperation.Text.ToString() + "','" + textBoxCount.Text.ToString() + "'," + id + ")";
                 }
                 if (comboBoxTypeOperation.Text == "Перемещение материалов")
                 {
-                    add = "INSERT INTO Journal_Operation (idOperation, Type_operation, Date_operation, StoreId1, StoreId2, MOLId1, MOLId2, Sum_operation, Comment) VALUES (" + id + ",'" + comboBoxTypeOperation.Text.ToString() + "','" + dateOperation + "'," + (Convert.ToInt32(comboBoxStock1.SelectedValue.ToString()) + "," + Convert.ToInt32(comboBoxStock2.SelectedValue.ToString()) + "," + Convert.ToInt32(comboBoxMOL.SelectedValue.ToString()) + "," + Convert.ToInt32(comboBoxMOL2.SelectedValue.ToString()) + ",'" + textBoxSumOperation.Text.ToString() + "','" + textBoxComment.Text.ToString() + "')");
+                    add = "INSERT INTO Journal_Operation (idOperation, Type_operation, Date_operation, StoreId1, StoreId2, MOLId1, MOLId2, Sum_operation, Comment, MaterialsId, Count) VALUES (" + id + ",'" + comboBoxTypeOperation.Text.ToString() + "','" + dateOperation + "'," + (Convert.ToInt32(comboBoxStock1.SelectedValue.ToString()) + "," + Convert.ToInt32(comboBoxStock2.SelectedValue.ToString()) + "," + Convert.ToInt32(comboBoxMOL.SelectedValue.ToString()) + "," + Convert.ToInt32(comboBoxMOL2.SelectedValue.ToString()) + ",'" + textBoxSumOperation.Text.ToString() + "','" + textBoxComment.Text.ToString() + "'," + Convert.ToInt32(comboBoxMaterial.SelectedValue.ToString()) + ", '" + textBoxCount.Text.ToString() + "')");
                 }
                 if (comboBoxTypeOperation.Text == "Отпуск материалов")
                 {
-                    add = "INSERT INTO Journal_Operation (idOperation, Type_operation, Date_operation, StoreId1, MOLId1, Podrazdel, Sum_operation, Comment) VALUES (" + id + ",'" + comboBoxTypeOperation.Text.ToString() + "','" + dateOperation + "'," + (Convert.ToInt32(comboBoxStock1.SelectedValue.ToString()) + "," + Convert.ToInt32(comboBoxMOL.SelectedValue.ToString()) + "," + Convert.ToInt32(comboBoxPodrazdel.SelectedValue.ToString()) + ",'" + textBoxSumOperation.Text.ToString() + "','" + textBoxComment.Text.ToString() + "')");
+                    add = "INSERT INTO Journal_Operation (idOperation, Type_operation, Date_operation, StoreId1, MOLId1, Podrazdel, Sum_operation, Comment, MaterialsId, Count) VALUES (" + id + ",'" + comboBoxTypeOperation.Text.ToString() + "','" + dateOperation + "'," + (Convert.ToInt32(comboBoxStock1.SelectedValue.ToString()) + "," + Convert.ToInt32(comboBoxMOL.SelectedValue.ToString()) + "," + Convert.ToInt32(comboBoxPodrazdel.SelectedValue.ToString()) + ",'" + textBoxSumOperation.Text.ToString() + "','" + textBoxComment.Text.ToString() + "'," + Convert.ToInt32(comboBoxMaterial.SelectedValue.ToString()) + ", '" + textBoxCount.Text.ToString() + "')");
                 }
                 ExecuteQuery(add);
                 ExecuteQuery(addProvodki);
@@ -456,7 +330,6 @@ namespace TPIS
 
         private void button1_Click(object sender, EventArgs e)
         {
-            delMaterials();
             comboBoxMaterial.SelectedIndex = -1;
             comboBoxPodrazdel.SelectedIndex = -1;
             comboBoxStock1.SelectedIndex = -1;
@@ -465,7 +338,6 @@ namespace TPIS
             comboBoxMOL2.SelectedIndex = -1;
             comboBoxProvider.SelectedIndex = -1;
             comboBoxTypeOperation.SelectedIndex = -1;
-            textBoxSum.Text = "";
             textBoxSumOperation.Text = "";
             textBoxComment.Text = "";
             textBoxCount.Text = "";

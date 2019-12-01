@@ -18,7 +18,7 @@ namespace TPIS
         private SQLiteCommand sql_cmd;
         private DataSet DS = new DataSet();
         private DataTable DT = new DataTable();
-        private static string sPath = Path.Combine(Application.StartupPath, "mydatabase.db");
+        private static string sPath = Path.Combine(Application.StartupPath, "mydatabaselab5.db");
         string ConnectionString = @"Data Source=" + sPath + ";New=False;Version=3";
 
         public FormJournalOperation()
@@ -86,8 +86,6 @@ namespace TPIS
             string valueId = dataGridView1[0, CurrentRow].Value.ToString();
             String deleteJournalOperation = "delete from Journal_Operation where idOperation=" + valueId;
             changeValue(ConnectionString, deleteJournalOperation);
-            String deleteMaterialsJournal = "delete from Materials_JournalOperation where JournalOperationId=" + valueId;
-            changeValue(ConnectionString, deleteMaterialsJournal);
 
             String selectCommand1 = "Select idOperation, Type_operation, Sum_operation, Date_operation, Comment from Journal_Operation";
             selectTable(ConnectionString, selectCommand1);
