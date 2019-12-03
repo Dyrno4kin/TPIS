@@ -22,23 +22,24 @@ namespace TPIS
         string ConnectionString = @"Data Source=" + sPath + ";New=False;Version=3";
         public int Id { set { id = value; } }
         private int? id;
+        string selectT = "";
 
         public FormJournalProvodok()
         {
             InitializeComponent();
         }
 
-        public void selectTable(string ConnectionString)
+        public void selectTable(string ConnectionString, string selectT)
         {
             SQLiteConnection connect = new SQLiteConnection(ConnectionString);
             connect.Open();
-            SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter("Select idProvodki, DateOperation, ShetDT, Subkonto1Dt, Subkonto2Dt,Subkonto3Dt, ShetKT, Subkonto1Kt, Subkonto2Kt, Subkonto3Kt, Count, Sum, JournalOperationKod from Journal_Provodok where JournalOperationKod =" + id, connect);
+            SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(selectT, connect);
             DataSet ds = new DataSet();
             dataAdapter.Fill(ds);
             dataGridView1.DataSource = ds;
             dataGridView1.DataMember = ds.Tables[0].ToString();
             connect.Close();
-            dataGridView1.Columns["idProvodki"].DisplayIndex = 0;
+           // dataGridView1.Columns["idProvodki"].DisplayIndex = 0;
           //  dataGridView1.Columns["DateOperation"].DisplayIndex = 1;
           //  dataGridView1.Columns["ShetDT"].DisplayIndex = 2;
           //  dataGridView1.Columns["Subkonto1Dt"].DisplayIndex = 3;
@@ -55,7 +56,16 @@ namespace TPIS
 
         private void FormJournalProvodok_Load(object sender, EventArgs e)
         {
-            selectTable(ConnectionString);
+            if (!id.HasValue)
+            {
+                selectT = "Select DateOperation, ShetDT, Subkonto1Dt, Subkonto2Dt,Subkonto3Dt, ShetKT, Subkonto1Kt, Subkonto2Kt, Subkonto3Kt, Count, Sum from Journal_Provodok ";
+                selectTable(ConnectionString, selectT);
+            }
+            else
+            {
+                selectT = "Select idProvodki, DateOperation, ShetDT, Subkonto1Dt, Subkonto2Dt,Subkonto3Dt, ShetKT, Subkonto1Kt, Subkonto2Kt, Subkonto3Kt, Count, Sum, JournalOperationKod from Journal_Provodok where JournalOperationKod = " + id;
+                selectTable(ConnectionString, selectT);
+            }
         }
     }
 }

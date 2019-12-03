@@ -37,6 +37,7 @@
             this.материалыToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.журналToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.отчетToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.журналПроводокToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -102,6 +103,8 @@
             // 
             // журналToolStripMenuItem
             // 
+            this.журналToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.журналПроводокToolStripMenuItem});
             this.журналToolStripMenuItem.Name = "журналToolStripMenuItem";
             this.журналToolStripMenuItem.Size = new System.Drawing.Size(136, 23);
             this.журналToolStripMenuItem.Text = "Журнал операций";
@@ -112,6 +115,13 @@
             this.отчетToolStripMenuItem.Name = "отчетToolStripMenuItem";
             this.отчетToolStripMenuItem.Size = new System.Drawing.Size(59, 23);
             this.отчетToolStripMenuItem.Text = "Отчет";
+            // 
+            // журналПроводокToolStripMenuItem
+            // 
+            this.журналПроводокToolStripMenuItem.Name = "журналПроводокToolStripMenuItem";
+            this.журналПроводокToolStripMenuItem.Size = new System.Drawing.Size(195, 24);
+            this.журналПроводокToolStripMenuItem.Text = "Журнал проводок";
+            this.журналПроводокToolStripMenuItem.Click += new System.EventHandler(this.журналПроводокToolStripMenuItem_Click);
             // 
             // FormMain
             // 
@@ -140,6 +150,7 @@
         private System.Windows.Forms.ToolStripMenuItem материалыToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem журналToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem отчетToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem журналПроводокToolStripMenuItem;
     }
 }
 

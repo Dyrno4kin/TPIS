@@ -52,5 +52,11 @@ namespace TPIS
             var form = new FormMaterials();
             form.ShowDialog();
         }
+
+        private void журналПроводокToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var form = new FormJournalProvodok();
+            form.ShowDialog();
+        }
     }
 }
