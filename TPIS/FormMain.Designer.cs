@@ -36,8 +36,8 @@
             this.складыToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.материалыToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.журналToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.отчетToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.журналПроводокToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.отчетToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -110,18 +110,19 @@
             this.журналToolStripMenuItem.Text = "Журнал операций";
             this.журналToolStripMenuItem.Click += new System.EventHandler(this.журналToolStripMenuItem_Click);
             // 
-            // отчетToolStripMenuItem
-            // 
-            this.отчетToolStripMenuItem.Name = "отчетToolStripMenuItem";
-            this.отчетToolStripMenuItem.Size = new System.Drawing.Size(59, 23);
-            this.отчетToolStripMenuItem.Text = "Отчет";
-            // 
             // журналПроводокToolStripMenuItem
             // 
             this.журналПроводокToolStripMenuItem.Name = "журналПроводокToolStripMenuItem";
             this.журналПроводокToolStripMenuItem.Size = new System.Drawing.Size(195, 24);
             this.журналПроводокToolStripMenuItem.Text = "Журнал проводок";
             this.журналПроводокToolStripMenuItem.Click += new System.EventHandler(this.журналПроводокToolStripMenuItem_Click);
+            // 
+            // отчетToolStripMenuItem
+            // 
+            this.отчетToolStripMenuItem.Name = "отчетToolStripMenuItem";
+            this.отчетToolStripMenuItem.Size = new System.Drawing.Size(59, 23);
+            this.отчетToolStripMenuItem.Text = "Отчет";
+            this.отчетToolStripMenuItem.Click += new System.EventHandler(this.отчетToolStripMenuItem_Click);
             // 
             // FormMain
             // 
