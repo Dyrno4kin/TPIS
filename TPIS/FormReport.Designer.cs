@@ -44,6 +44,8 @@
             this.buttonSaveXls = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.сохранениеВАрхивToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.label5 = new System.Windows.Forms.Label();
+            this.textBoxEmail = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -199,11 +201,29 @@
             this.сохранениеВАрхивToolStripMenuItem.Text = "Сохранение в архив";
             this.сохранениеВАрхивToolStripMenuItem.Click += new System.EventHandler(this.сохранениеВАрхивToolStripMenuItem_Click);
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(14, 400);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(42, 15);
+            this.label5.TabIndex = 41;
+            this.label5.Text = "Email:";
+            // 
+            // textBoxEmail
+            // 
+            this.textBoxEmail.Location = new System.Drawing.Point(62, 397);
+            this.textBoxEmail.Name = "textBoxEmail";
+            this.textBoxEmail.Size = new System.Drawing.Size(176, 20);
+            this.textBoxEmail.TabIndex = 42;
+            // 
             // FormReport
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 424);
+            this.Controls.Add(this.textBoxEmail);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.buttonSaveXls);
             this.Controls.Add(this.buttonSaveDoc);
             this.Controls.Add(this.label4);
@@ -249,5 +269,7 @@
         private System.Windows.Forms.Button buttonSaveXls;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem сохранениеВАрхивToolStripMenuItem;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox textBoxEmail;
     }
 }

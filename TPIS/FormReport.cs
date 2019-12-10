@@ -7,7 +7,11 @@ using System;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
+using System.Net;
+using System.Net.Mail;
 using System.Windows.Forms;
+using System.Configuration;
+using System.Text.RegularExpressions;
 
 namespace TPIS
 {
@@ -34,6 +38,8 @@ namespace TPIS
             String selectStore = "Select idStore, Name from Store";
             selectCombo(ConnectionString, selectStore, comboBoxStock, "Name", "idStore");
             comboBoxStock.SelectedIndex = -1;
+
+            textBoxEmail.Text = "adresat277@gmail.com";
         }
 
         public void selectCombo(string ConnectionString, String selectCommand, ComboBox comboBox, string displayMember, string valueMember)
@@ -305,6 +311,18 @@ namespace TPIS
             {
                 winword.Quit();
             }
+            string mailAddress = textBoxEmail.Text;
+            if (!string.IsNullOrEmpty(mailAddress))
+            {
+                if (Regex.IsMatch(mailAddress, @"^(?("")(""[^""]+?""@)|(([0-9a-z]((\.(?!\.))|[-
+!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9az][-\w]*[0-9a-z]*\.)+[a-z0-9]{2,17}))$"))
+                {
+                    MessageBox.Show("Неверный формат для электронной почты", "Ошибка",
+                   MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+            SendEmailForClients(mailAddress, "Отчеты:", "", FileName);
         }
 
         public void savePDF(string FileName)
@@ -368,6 +386,18 @@ namespace TPIS
                 pdfDoc.Close();
                 stream.Close();
             }
+            string mailAddress = textBoxEmail.Text;
+            if (!string.IsNullOrEmpty(mailAddress))
+            {
+                if (Regex.IsMatch(mailAddress, @"^(?("")(""[^""]+?""@)|(([0-9a-z]((\.(?!\.))|[-
+!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9az][-\w]*[0-9a-z]*\.)+[a-z0-9]{2,17}))$"))
+                {
+                    MessageBox.Show("Неверный формат для электронной почты", "Ошибка",
+                   MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+            SendEmailForClients(mailAddress, "Отчеты:", "", FileName);
         }
 
         public void saveXls(string FileName)
@@ -457,7 +487,6 @@ namespace TPIS
 
         public void saveRAR (string FileName)
         {
-
             using (ZipFile zip = new ZipFile())
             {
                 savePDF(@"D:\Ise31\Отчеты по ТПЭИС\ReportPdf.pdf");
@@ -495,5 +524,40 @@ namespace TPIS
                 }
             }
         }
+
+        private void SendEmailForClients(string mailAddress, string subject, string text, string attachmentPath)
+        {
+            System.Net.Mail.MailMessage m = new System.Net.Mail.MailMessage();
+            SmtpClient smtpClient = null;
+            try
+            {
+                m.From = new MailAddress(ConfigurationManager.AppSettings["MailLogin"]);
+                m.To.Add(new MailAddress(mailAddress));
+                m.Subject = subject;
+                m.Body = text;
+                m.SubjectEncoding = System.Text.Encoding.UTF8;
+                m.BodyEncoding = System.Text.Encoding.UTF8;
+                m.Attachments.Add(new Attachment(attachmentPath));
+                smtpClient = new SmtpClient("smtp.gmail.com", 587);
+                smtpClient.UseDefaultCredentials = false;
+                smtpClient.EnableSsl = true;
+                smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
+                smtpClient.Credentials = new NetworkCredential(
+                    ConfigurationManager.AppSettings["MailLogin"],
+                    ConfigurationManager.AppSettings["MailPassword"]
+                    );
+                smtpClient.Send(m);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                m = null;
+                smtpClient = null;
+            }
+        }
+
     }
 }
