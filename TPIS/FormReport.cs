@@ -1,4 +1,5 @@
-﻿using iTextSharp.text;
+﻿using Ionic.Zip;
+using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Interop.Word;
@@ -451,6 +452,47 @@ namespace TPIS
             finally
             {
                 excel.Quit();
+            }
+        }
+
+        public void saveRAR (string FileName)
+        {
+
+            using (ZipFile zip = new ZipFile())
+            {
+                savePDF(@"D:\Ise31\Отчеты по ТПЭИС\ReportPdf.pdf");
+                saveDoc(@"D:\Ise31\Отчеты по ТПЭИС\ReportDoc.doc");
+                saveXls(@"D:\Ise31\Отчеты по ТПЭИС\ReportXls.xls");
+                zip.AddDirectory(@"D:\Ise31\Отчеты по ТПЭИС\");
+                zip.Save(FileName);
+            }
+        }
+
+        private void сохранениеВАрхивToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (dateTimePicker1.Value.Date >= dateTimePicker2.Value.Date)
+            {
+                MessageBox.Show("Дата начала должна быть меньше даты окончания",
+               "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            SaveFileDialog sfd = new SaveFileDialog
+            {
+                Filter = "rar|*.rar"
+            };
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    saveRAR(sfd.FileName);
+                    MessageBox.Show("Выполнено", "Успех", MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK,
+                   MessageBoxIcon.Error);
+                }
             }
         }
     }
