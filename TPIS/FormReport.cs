@@ -82,6 +82,12 @@ namespace TPIS
 
         private void buttonCreate_Click(object sender, EventArgs e)
         {
+            if (dateTimePicker1.Value.Date >= dateTimePicker2.Value.Date)
+            {
+                MessageBox.Show("Дата начала должна быть меньше даты окончания",
+               "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
             String selectCommand = "";
             string dateFrom = Convert.ToString(dateTimePicker1.Text);
             string dateTo = Convert.ToString(dateTimePicker2.Text);
@@ -122,11 +128,16 @@ namespace TPIS
                 count++;
             }
             label4.Text = "Итого: " + Convert.ToString(sum);
-
         }
 
         private void buttonPDF_Click(object sender, EventArgs e)
         {
+            if (dateTimePicker1.Value.Date >= dateTimePicker2.Value.Date)
+            {
+                MessageBox.Show("Дата начала должна быть меньше даты окончания",
+               "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
             SaveFileDialog sfd = new SaveFileDialog
             {
                 Filter = "pdf|*.pdf"
@@ -144,70 +155,17 @@ namespace TPIS
                    MessageBoxIcon.Error);
                 }
             }
-
-            string FONT_LOCATION = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "arial.TTF"); //определяем В СИСТЕМЕ(чтобы не копировать файл) расположение шрифта arial.ttf
-            BaseFont baseFont = BaseFont.CreateFont(FONT_LOCATION, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED); //создаем шрифт
-            iTextSharp.text.Font fontParagraph = new iTextSharp.text.Font(baseFont, 17, iTextSharp.text.Font.NORMAL); //регистрируем + можно задать параметры для него(17 - размер, последний параметр - стиль)
-            string title = "";
-            if (comboBoxTypeOperation.SelectedItem.ToString() == "Поступление материалов")
-            {
-                title = "Поступление материалов на " + comboBoxStock.Text.ToString() + " с " + Convert.ToString(dateTimePicker1.Text) + " по " + Convert.ToString(dateTimePicker2.Text) + "\n\n";
-            }
-            if (comboBoxTypeOperation.SelectedItem.ToString() == "Остатки материалов на складе")
-            {
-                title = "Остатки материалов на "+ comboBoxStock.Text.ToString()+" на " + Convert.ToString(dateTimePicker2.Text) + "\n\n";
-            }
-            if (comboBoxTypeOperation.SelectedItem.ToString() == "Отпуск материалов")
-            {
-                title = "Отпуск материалов в " + comboBoxStock.Text.ToString() + " с " + Convert.ToString(dateTimePicker1.Text) + " по " + Convert.ToString(dateTimePicker2.Text) + "\n\n";
-            }
-
-            var phraseTitle = new Phrase(title,
-            new iTextSharp.text.Font(baseFont, 18, iTextSharp.text.Font.BOLD));
-            iTextSharp.text.Paragraph paragraph = new
-           iTextSharp.text.Paragraph(phraseTitle)
-            {
-                Alignment = Element.ALIGN_CENTER,
-                SpacingAfter = 12
-            };
-
-            PdfPTable table = new PdfPTable(dataGridView1.Columns.Count);
-
-            for (int i = 0; i < dataGridView1.Columns.Count; i++)
-            {
-               table.AddCell(new Phrase(dataGridView1.Columns[i].HeaderCell.Value.ToString(), fontParagraph));
-            }
-            for (int i = 0; i < dataGridView1.Rows.Count; i++)
-            {                
-                for (int j = 0; j < dataGridView1.Columns.Count; j++)
-                {
-                    table.AddCell(new Phrase(dataGridView1.Rows[i].Cells[j].Value.ToString(), fontParagraph));
-                }
-            }
-
-            var phraseSum = new Phrase(label4.Text.ToString(),
-            new iTextSharp.text.Font(baseFont, 16, iTextSharp.text.Font.BOLD));
-            iTextSharp.text.Paragraph paragraphSum = new
-           iTextSharp.text.Paragraph(phraseSum)
-            {
-                Alignment = Element.ALIGN_RIGHT-1,
-                SpacingAfter = 12,
-            };
-            using (FileStream stream = new FileStream(sfd.FileName, FileMode.Create))
-            {
-                iTextSharp.text.Document pdfDoc = new iTextSharp.text.Document(PageSize.A2, 10f, 10f, 10f, 0f);
-                PdfWriter.GetInstance(pdfDoc, stream);
-                pdfDoc.Open();
-                pdfDoc.Add(paragraph);
-                pdfDoc.Add(table);
-                pdfDoc.Add(paragraphSum);
-                pdfDoc.Close();
-                stream.Close();
-            }
+            savePDF(sfd.FileName);
         }
 
         private void buttonSaveDoc_Click(object sender, EventArgs e)
         {
+            if (dateTimePicker1.Value.Date >= dateTimePicker2.Value.Date)
+            {
+                MessageBox.Show("Дата начала должна быть меньше даты окончания",
+               "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
             SaveFileDialog sfd = new SaveFileDialog
             {
                 Filter = "doc|*.doc"
@@ -225,7 +183,39 @@ namespace TPIS
                    MessageBoxIcon.Error);
                 }
             }
+            saveDoc(sfd.FileName);
+        }
 
+        private void buttonSaveXls_Click(object sender, EventArgs e)
+        {
+            if (dateTimePicker1.Value.Date >= dateTimePicker2.Value.Date)
+            {
+                MessageBox.Show("Дата начала должна быть меньше даты окончания",
+               "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            SaveFileDialog sfd = new SaveFileDialog
+            {
+                Filter = "xls|*.xls|xlsx|*.xlsx"
+            };
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    MessageBox.Show("Выполнено", "Успех", MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK,
+                   MessageBoxIcon.Error);
+                }
+            }
+            saveXls(sfd.FileName);
+        }
+
+        public void saveDoc(string FileName)
+        {
             var winword = new Microsoft.Office.Interop.Word.Application();
             try
             {
@@ -268,7 +258,7 @@ namespace TPIS
                 //создаем таблицу
                 var paragraphTable = document.Paragraphs.Add(Type.Missing);
                 var rangeTable = paragraphTable.Range;
-                var table = document.Tables.Add(rangeTable, dataGridView1.Rows.Count+1, dataGridView1.Columns.Count, ref
+                var table = document.Tables.Add(rangeTable, dataGridView1.Rows.Count + 1, dataGridView1.Columns.Count, ref
                missing, ref missing);
                 font = table.Range.Font;
                 font.Size = 14;
@@ -277,15 +267,15 @@ namespace TPIS
                 paragraphTableFormat.LineSpacingRule = WdLineSpacing.wdLineSpaceSingle;
                 paragraphTableFormat.SpaceAfter = 0;
                 paragraphTableFormat.SpaceBefore = 0;
-                    for (int i = 0; i < dataGridView1.Columns.Count; ++i)
-                    {
-                        table.Cell(1, i+1).Range.Text = dataGridView1.Columns[i].HeaderCell.Value.ToString();
-                    }
+                for (int i = 0; i < dataGridView1.Columns.Count; ++i)
+                {
+                    table.Cell(1, i + 1).Range.Text = dataGridView1.Columns[i].HeaderCell.Value.ToString();
+                }
                 for (int i = 0; i < dataGridView1.Rows.Count; ++i)
                 {
                     for (int j = 0; j < dataGridView1.Columns.Count; ++j)
                     {
-                        table.Cell(i + 2,j + 1).Range.Text = dataGridView1.Rows[i].Cells[j].Value.ToString();
+                        table.Cell(i + 2, j + 1).Range.Text = dataGridView1.Rows[i].Cells[j].Value.ToString();
                     }
                 }
                 //задаем границы таблицы
@@ -305,7 +295,7 @@ namespace TPIS
                 range.InsertParagraphAfter();
                 //сохраняем
                 object fileFormat = WdSaveFormat.wdFormatXMLDocument;
-                document.SaveAs(sfd.FileName, ref fileFormat, ref missing,
+                document.SaveAs(FileName, ref fileFormat, ref missing,
                 ref missing, ref missing, ref missing, ref missing,
                 ref missing, ref missing, ref missing, ref missing,
                 ref missing, ref missing, ref missing, ref missing,
@@ -322,32 +312,77 @@ namespace TPIS
             }
         }
 
-        private void buttonSaveXls_Click(object sender, EventArgs e)
+        public void savePDF(string FileName)
         {
-            SaveFileDialog sfd = new SaveFileDialog
+            string FONT_LOCATION = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "arial.TTF"); //определяем В СИСТЕМЕ(чтобы не копировать файл) расположение шрифта arial.ttf
+            BaseFont baseFont = BaseFont.CreateFont(FONT_LOCATION, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED); //создаем шрифт
+            iTextSharp.text.Font fontParagraph = new iTextSharp.text.Font(baseFont, 17, iTextSharp.text.Font.NORMAL); //регистрируем + можно задать параметры для него(17 - размер, последний параметр - стиль)
+            string title = "";
+            if (comboBoxTypeOperation.SelectedItem.ToString() == "Поступление материалов")
             {
-                Filter = "xls|*.xls|xlsx|*.xlsx"
+                title = "Поступление материалов на " + comboBoxStock.Text.ToString() + " с " + Convert.ToString(dateTimePicker1.Text) + " по " + Convert.ToString(dateTimePicker2.Text) + "\n\n";
+            }
+            if (comboBoxTypeOperation.SelectedItem.ToString() == "Остатки материалов на складе")
+            {
+                title = "Остатки материалов на " + comboBoxStock.Text.ToString() + " на " + Convert.ToString(dateTimePicker2.Text) + "\n\n";
+            }
+            if (comboBoxTypeOperation.SelectedItem.ToString() == "Отпуск материалов")
+            {
+                title = "Отпуск материалов в " + comboBoxStock.Text.ToString() + " с " + Convert.ToString(dateTimePicker1.Text) + " по " + Convert.ToString(dateTimePicker2.Text) + "\n\n";
+            }
+
+            var phraseTitle = new Phrase(title,
+            new iTextSharp.text.Font(baseFont, 18, iTextSharp.text.Font.BOLD));
+            iTextSharp.text.Paragraph paragraph = new
+           iTextSharp.text.Paragraph(phraseTitle)
+            {
+                Alignment = Element.ALIGN_CENTER,
+                SpacingAfter = 12
             };
-            if (sfd.ShowDialog() == DialogResult.OK)
+
+            PdfPTable table = new PdfPTable(dataGridView1.Columns.Count);
+
+            for (int i = 0; i < dataGridView1.Columns.Count; i++)
             {
-                try
+                table.AddCell(new Phrase(dataGridView1.Columns[i].HeaderCell.Value.ToString(), fontParagraph));
+            }
+            for (int i = 0; i < dataGridView1.Rows.Count; i++)
+            {
+                for (int j = 0; j < dataGridView1.Columns.Count; j++)
                 {
-                    MessageBox.Show("Выполнено", "Успех", MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK,
-                   MessageBoxIcon.Error);
+                    table.AddCell(new Phrase(dataGridView1.Rows[i].Cells[j].Value.ToString(), fontParagraph));
                 }
             }
 
+            var phraseSum = new Phrase(label4.Text.ToString(),
+            new iTextSharp.text.Font(baseFont, 16, iTextSharp.text.Font.BOLD));
+            iTextSharp.text.Paragraph paragraphSum = new
+           iTextSharp.text.Paragraph(phraseSum)
+            {
+                Alignment = Element.ALIGN_RIGHT - 1,
+                SpacingAfter = 12,
+            };
+            using (FileStream stream = new FileStream(FileName, FileMode.Create))
+            {
+                iTextSharp.text.Document pdfDoc = new iTextSharp.text.Document(PageSize.A2, 10f, 10f, 10f, 0f);
+                PdfWriter.GetInstance(pdfDoc, stream);
+                pdfDoc.Open();
+                pdfDoc.Add(paragraph);
+                pdfDoc.Add(table);
+                pdfDoc.Add(paragraphSum);
+                pdfDoc.Close();
+                stream.Close();
+            }
+        }
+
+        public void saveXls(string FileName)
+        {
             var excel = new Microsoft.Office.Interop.Excel.Application();
             try
             {
-                if (File.Exists(sfd.FileName))
+                if (File.Exists(FileName))
                 {
-                    excel.Workbooks.Open(sfd.FileName, Type.Missing, Type.Missing,
+                    excel.Workbooks.Open(FileName, Type.Missing, Type.Missing,
                    Type.Missing,
                     Type.Missing, Type.Missing, Type.Missing, Type.Missing,
                    Type.Missing,
@@ -359,7 +394,7 @@ namespace TPIS
                 {
                     excel.SheetsInNewWorkbook = 1;
                     excel.Workbooks.Add(Type.Missing);
-                    excel.Workbooks[1].SaveAs(sfd.FileName, XlFileFormat.xlExcel8,
+                    excel.Workbooks[1].SaveAs(FileName, XlFileFormat.xlExcel8,
                     Type.Missing,
                      Type.Missing, false, false, XlSaveAsAccessMode.xlNoChange,
                     Type.Missing,
@@ -368,7 +403,7 @@ namespace TPIS
                 Sheets excelsheets = excel.Workbooks[1].Worksheets;
 
                 var excelworksheet = (Worksheet)excelsheets.get_Item(1);
-                excelworksheet.Cells.Clear();  
+                excelworksheet.Cells.Clear();
                 Microsoft.Office.Interop.Excel.Range excelcells = excelworksheet.get_Range("A1", "H1");
                 excelcells.Merge(Type.Missing);
                 excelcells.Font.Bold = true;
@@ -402,15 +437,15 @@ namespace TPIS
                 }
 
                 for (int i = 0; i < dataGridView1.Rows.Count; i++)
-                 {
-                     for (int j = 0; j < dataGridView1.Columns.Count; j++)
-                     {
-                         excelcells = excelworksheet.get_Range("B4", "B4");
-                         excelcells = excelcells.get_Offset(i, j);
-                         excelcells.ColumnWidth = 15;
-                         excelcells.Value2 = dataGridView1.Rows[i].Cells[j].Value.ToString();
-                     }
-                 }
+                {
+                    for (int j = 0; j < dataGridView1.Columns.Count; j++)
+                    {
+                        excelcells = excelworksheet.get_Range("B4", "B4");
+                        excelcells = excelcells.get_Offset(i, j);
+                        excelcells.ColumnWidth = 15;
+                        excelcells.Value2 = dataGridView1.Rows[i].Cells[j].Value.ToString();
+                    }
+                }
                 excelcells = excelcells.get_Offset(1, 0);
                 excelcells.Value2 = label4.Text.ToString();
                 excelcells.Font.Bold = true;
@@ -423,7 +458,6 @@ namespace TPIS
             {
                 excel.Quit();
             }
-
         }
     }
 }
