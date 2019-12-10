@@ -3,15 +3,9 @@ using iTextSharp.text.pdf;
 using Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Interop.Word;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Data.SQLite;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace TPIS
@@ -145,7 +139,8 @@ namespace TPIS
             if (sfd.ShowDialog() == DialogResult.OK)
             {
                 try
-                {                  
+                {
+                    savePDF(sfd.FileName);
                     MessageBox.Show("Выполнено", "Успех", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
                 }
@@ -155,7 +150,6 @@ namespace TPIS
                    MessageBoxIcon.Error);
                 }
             }
-            savePDF(sfd.FileName);
         }
 
         private void buttonSaveDoc_Click(object sender, EventArgs e)
@@ -174,6 +168,7 @@ namespace TPIS
             {
                 try
                 {
+                    saveDoc(sfd.FileName);
                     MessageBox.Show("Выполнено", "Успех", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
                 }
@@ -183,7 +178,6 @@ namespace TPIS
                    MessageBoxIcon.Error);
                 }
             }
-            saveDoc(sfd.FileName);
         }
 
         private void buttonSaveXls_Click(object sender, EventArgs e)
@@ -202,6 +196,7 @@ namespace TPIS
             {
                 try
                 {
+                    saveXls(sfd.FileName);
                     MessageBox.Show("Выполнено", "Успех", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
                 }
@@ -211,7 +206,6 @@ namespace TPIS
                    MessageBoxIcon.Error);
                 }
             }
-            saveXls(sfd.FileName);
         }
 
         public void saveDoc(string FileName)
