@@ -20,6 +20,7 @@ namespace TPIS
         private void журналToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var form = new FormJournalOperation();
+            form.dateTime = Convert.ToString(dateTimePicker1.Value);
             form.ShowDialog();
         }
 
@@ -62,7 +63,14 @@ namespace TPIS
         private void отчетToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var form = new FormReport();
+            form.dateTime = Convert.ToString(dateTimePicker1.Value);
             form.ShowDialog();
+        }
+
+        private void FormMain_Load(object sender, EventArgs e)
+        {
+            dateTimePicker1.CustomFormat = "dd/MM/yyyy";
+            dateTimePicker1.Format = DateTimePickerFormat.Custom;
         }
     }
 }

@@ -15,6 +15,8 @@ namespace TPIS
         private string sPath = Path.Combine(Application.StartupPath, "mydatabaselab5.db");
         public int Id { set { id = value; } }
         private int? id;
+        public string dateTime { set { date = value; } }
+        private string date = Convert.ToString(DateTime.Now);
         private bool upd = true;
 
         public FormAddJournalOperation()
@@ -26,6 +28,7 @@ namespace TPIS
         {
             string ConnectionString = @"Data Source=" + sPath + ";New=False;Version=3";
             dateTimePicker1.CustomFormat = "dd/MM/yyyy";
+            dateTimePicker1.Text = Convert.ToString(date);
             dateTimePicker1.Format = DateTimePickerFormat.Custom;
             if (!id.HasValue)
             {

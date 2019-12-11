@@ -20,6 +20,8 @@ namespace TPIS
         private DataTable DT = new DataTable();
         private static string sPath = Path.Combine(Application.StartupPath, "mydatabaselab5.db");
         string ConnectionString = @"Data Source=" + sPath + ";New=False;Version=3";
+        public string dateTime { set { date = value; } }
+        private string date = Convert.ToString(DateTime.Now);
 
         public FormJournalOperation()
         {
@@ -54,6 +56,10 @@ namespace TPIS
 
         private void FormJournalOperation_Load(object sender, EventArgs e)
         {
+            string ConnectionString = @"Data Source=" + sPath + ";New=False;Version=3";
+            dateTimePicker1.CustomFormat = "dd/MM/yyyy";
+            dateTimePicker1.Text = Convert.ToString(date);
+            dateTimePicker1.Format = DateTimePickerFormat.Custom;
             //string ConnectionString = @"Data Source=" + sPath + ";New=False;Version=3";
             String selectCommand = "Select idOperation, Type_operation, Sum_operation, Date_operation, Comment from Journal_Operation";
             selectTable(ConnectionString, selectCommand);
@@ -63,6 +69,7 @@ namespace TPIS
         {
             //string ConnectionString = @"Data Source=" + sPath + ";New=False;Version=3";
             var form = new FormAddJournalOperation();
+            form.dateTime = Convert.ToString(dateTimePicker1.Text);
             form.ShowDialog();
             String selectCommand = "Select idOperation, Type_operation, Sum_operation, Date_operation, Comment from Journal_Operation";
             selectTable(ConnectionString, selectCommand);

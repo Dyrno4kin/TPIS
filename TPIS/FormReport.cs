@@ -23,6 +23,8 @@ namespace TPIS
         private System.Data.DataTable DT = new System.Data.DataTable();
         private static string sPath = Path.Combine(System.Windows.Forms.Application.StartupPath, "mydatabaselab5.db");
         string ConnectionString = @"Data Source=" + sPath + ";New=False;Version=3";
+        public string dateTime { set { date = value; } } 
+        private string date = Convert.ToString(DateTime.Now);
         public FormReport()
         {
             InitializeComponent();
@@ -34,7 +36,8 @@ namespace TPIS
             dateTimePicker1.Format = DateTimePickerFormat.Custom;
             dateTimePicker2.CustomFormat = "dd/MM/yyyy";
             dateTimePicker2.Format = DateTimePickerFormat.Custom;
-
+            dateTimePicker1.Text = Convert.ToString(date);
+            dateTimePicker2.Text = Convert.ToString(date);
             String selectStore = "Select idStore, Name from Store";
             selectCombo(ConnectionString, selectStore, comboBoxStock, "Name", "idStore");
             comboBoxStock.SelectedIndex = -1;
